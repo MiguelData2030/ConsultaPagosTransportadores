@@ -48,7 +48,6 @@ fonttools==4.39.3
 frozenlist==1.4.1
 fsspec==2024.6.1
 gast==0.4.0
-GDAL==3.4.3
 geographiclib==2.0
 geopandas==1.0.1
 geopy==2.4.1
