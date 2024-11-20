@@ -33,18 +33,29 @@ Las dependencias del sistema están especificadas en `packages.txt` y deben inst
 
 
 ## Configuración del Proyecto
+Uso de la Aplicación
+Inicio de sesión: Introduce tu número de proveedor para acceder a tu información.
+Opciones de consulta:
+Filtra por rango de fechas para ver anticipos y saldos.
+Consulta información del mes en curso con un solo clic.
+Visualización de datos:
+Explora tablas interactivas con detalles de anticipos y saldos.
+Genera gráficos semanales que resumen los totales de anticipos y saldos.
 
-1. Clona el repositorio:
-   ```bash
-   git clone https://github.com/MiguelData2030/ConsultaPagosTransportadores.git
-   cd ConsultaPagosTransportadores
 pip install -r requirements.txt
 streamlit run Pepsicargo_Pagos.py
 ConsultaPagosTransportadores/
+
 ├── Pepsicargo_Pagos.py      # Código principal de la aplicación
 ├── requirements.txt         # Dependencias de Python
 ├── packages.txt             # Dependencias del sistema
 ├── README.md                # Documentación del proyecto
 └── Untitled-1.ipynb         # Notas o experimentos en Jupyter Notebook
+
+Próximos Pasos
+Mejorar la interfaz de usuario con más opciones de personalización.
+Añadir notificaciones automáticas para pagos pendientes.
+Integrar funciones avanzadas de análisis de datos.
 Autor
 Proyecto desarrollado por Miguel Ángel Londoño Díaz.
+
