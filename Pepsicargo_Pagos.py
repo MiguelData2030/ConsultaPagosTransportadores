@@ -30,9 +30,9 @@ if st.session_state["proveedor"] is None:
             if numero_proveedor == "":
                 st.error("Por favor, ingrese un número de proveedor.")
             else:
-                query_validar = f'SELECT * FROM usuarios WHERE "Acreedor" = \'{numero_proveedor}\''
+                query_validar = 'SELECT * FROM usuarios WHERE "Acreedor" = %s'
                 try:
-                    df_usuario = pd.read_sql(query_validar, engine)
+                    df_usuario = pd.read_sql_query(query_validar, engine, params=(numero_proveedor,))
                     if df_usuario.empty:
                         st.error("Número de proveedor no encontrado. Intente nuevamente.")
                     else:
@@ -62,17 +62,15 @@ if st.session_state["proveedor"]:
     if st.sidebar.button("Consultar por rango de fechas"):
         try:
             # Consulta de anticipos
-            query_anticipos = f"""
+            query_anticipos = """
             SELECT "Acreedor", "Nombre del Proveedor", "MANIFIESTO", "Fecha_Manifiesto", "ANTICIPO"
             FROM anticipos
-            WHERE "Acreedor" = '{st.session_state['proveedor']}'
-            AND "Fecha_Manifiesto" BETWEEN '{fecha_inicio}' AND '{fecha_fin}'
+            WHERE "Acreedor" = %s
+            AND "Fecha_Manifiesto" BETWEEN %s AND %s
             """
-            df_anticipos = pd.read_sql(query_anticipos, engine)
+            df_anticipos = pd.read_sql_query(query_anticipos, engine, params=(st.session_state['proveedor'], fecha_inicio, fecha_fin))
 
             # Formatear datos
-            df_anticipos["Acreedor"] = df_anticipos["Acreedor"].astype(str).str.replace(",", "")
-            df_anticipos["MANIFIESTO"] = df_anticipos["MANIFIESTO"].astype(str).str.replace(",", "")
             df_anticipos["ANTICIPO"] = df_anticipos["ANTICIPO"].astype(int)
             df_anticipos["Fecha_Manifiesto"] = pd.to_datetime(df_anticipos["Fecha_Manifiesto"]).dt.date
             df_anticipos["Semana"] = pd.to_datetime(df_anticipos["Fecha_Manifiesto"]).dt.isocalendar().week
@@ -90,20 +88,18 @@ if st.session_state["proveedor"]:
                 labels={"Semana": "Semana", "ANTICIPO": "Total Anticipos (COP)"},
                 color_discrete_sequence=["#4CAF50"]
             )
-            fig_anticipos.update_traces(texttemplate="%{y}", textposition="outside")
-            st.plotly_chart(fig_anticipos)
+            st.plotly_chart(fig_anticipos, use_container_width=True)
 
             # Consulta de saldos
-            query_saldos = f"""
+            query_saldos = """
             SELECT "pago", "Acreedor", "Nombre 1", "MANIFIESTO", "VALOR_SALDO"
             FROM saldos
-            WHERE "Acreedor" = '{st.session_state['proveedor']}'
-            AND "pago" BETWEEN '{fecha_inicio}' AND '{fecha_fin}'
+            WHERE "Acreedor" = %s
+            AND "pago" BETWEEN %s AND %s
             """
-            df_saldos = pd.read_sql(query_saldos, engine)
+            df_saldos = pd.read_sql_query(query_saldos, engine, params=(st.session_state['proveedor'], fecha_inicio, fecha_fin))
 
             # Formatear datos
-            df_saldos["Acreedor"] = df_saldos["Acreedor"].astype(str).str.replace(",", "")
             df_saldos["VALOR_SALDO"] = df_saldos["VALOR_SALDO"].astype(int)
             df_saldos["pago"] = pd.to_datetime(df_saldos["pago"]).dt.date
             df_saldos["Semana"] = pd.to_datetime(df_saldos["pago"]).dt.isocalendar().week
@@ -121,7 +117,7 @@ if st.session_state["proveedor"]:
                 labels={"Semana": "Semana", "VALOR_SALDO": "Total Saldos (COP)"},
                 color_discrete_sequence=["#FF5733"]
             )
-            st.plotly_chart(fig_saldos)
+            st.plotly_chart(fig_saldos, use_container_width=True)
 
         except Exception as e:
             st.error(f"Error al realizar la consulta: {e}")
@@ -130,18 +126,16 @@ if st.session_state["proveedor"]:
     if st.sidebar.button("Mes en curso"):
         try:
             # Consulta anticipos mes en curso
-            query_anticipos_mes = f"""
+            query_anticipos_mes = """
             SELECT "Acreedor", "Nombre del Proveedor", "MANIFIESTO", "Fecha_Manifiesto", "ANTICIPO"
             FROM anticipos
-            WHERE "Acreedor" = '{st.session_state['proveedor']}'
+            WHERE "Acreedor" = %s
             AND EXTRACT(MONTH FROM "Fecha_Manifiesto") = EXTRACT(MONTH FROM CURRENT_DATE)
             AND EXTRACT(YEAR FROM "Fecha_Manifiesto") = EXTRACT(YEAR FROM CURRENT_DATE)
             """
-            df_mes = pd.read_sql(query_anticipos_mes, engine)
+            df_mes = pd.read_sql_query(query_anticipos_mes, engine, params=(st.session_state['proveedor'],))
 
             # Formatear datos
-            df_mes["Acreedor"] = df_mes["Acreedor"].astype(str).str.replace(",", "")
-            df_mes["MANIFIESTO"] = df_mes["MANIFIESTO"].astype(str).str.replace(",", "")
             df_mes["ANTICIPO"] = df_mes["ANTICIPO"].astype(int)
             df_mes["Fecha_Manifiesto"] = pd.to_datetime(df_mes["Fecha_Manifiesto"]).dt.date
 
@@ -152,18 +146,12 @@ if st.session_state["proveedor"]:
         except Exception as e:
             st.error(f"Error al realizar la consulta: {e}")
 
+# Botón para cerrar sesión
 if st.sidebar.button("Cerrar Sesión"):
-    try:
-        # Limpia la sesión
-        st.session_state.clear()  # Limpia todas las variables de sesión
-        st.toast("Sesión cerrada correctamente.")  # Mostrar notificación
+    st.session_state.clear()
+    st.toast("Sesión cerrada correctamente.")
+    st.experimental_rerun()
 
-        # Reinicia los parámetros de la aplicación y recarga
-        st.experimental_set_query_params()
-        st.experimental_rerun()
-    except Exception as e:
-        # Si ocurre un error, lo ignoramos y continuamos
-        pass
 
 
 
