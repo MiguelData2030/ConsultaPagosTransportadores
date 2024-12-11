@@ -5,7 +5,7 @@ import plotly.express as px
 
 # Configuración de la página
 st.set_page_config(page_title="Consulta de Pagos para Conductores", layout="wide")
-st.title("Consulta de Pagos para Conductores")
+st.title("🚛 Consulta de Pagos para Conductores - Transportes PepsiCo")
 
 # Variables de sesión
 if "proveedor" not in st.session_state:
@@ -75,6 +75,10 @@ if st.session_state["proveedor"]:
             df_anticipos["Fecha_Manifiesto"] = pd.to_datetime(df_anticipos["Fecha_Manifiesto"]).dt.date
             df_anticipos["Semana"] = pd.to_datetime(df_anticipos["Fecha_Manifiesto"]).dt.isocalendar().week
 
+            # Eliminar comas de las columnas 'Acreedor' y 'MANIFIESTO'
+            df_anticipos["Acreedor"] = df_anticipos["Acreedor"].astype(str).str.replace(",", "")
+            df_anticipos["MANIFIESTO"] = df_anticipos["MANIFIESTO"].astype(str).str.replace(",", "")
+
             # Mostrar tabla de anticipos
             st.subheader("Anticipos del Rango Seleccionado")
             st.dataframe(df_anticipos)
@@ -103,6 +107,10 @@ if st.session_state["proveedor"]:
             df_saldos["VALOR_SALDO"] = df_saldos["VALOR_SALDO"].astype(int)
             df_saldos["pago"] = pd.to_datetime(df_saldos["pago"]).dt.date
             df_saldos["Semana"] = pd.to_datetime(df_saldos["pago"]).dt.isocalendar().week
+
+            # Eliminar comas de las columnas 'Acreedor' y 'MANIFIESTO'
+            df_saldos["Acreedor"] = df_saldos["Acreedor"].astype(str).str.replace(",", "")
+            df_saldos["MANIFIESTO"] = df_saldos["MANIFIESTO"].astype(str).str.replace(",", "")
 
             # Mostrar tabla de saldos
             st.subheader("Saldos del Rango Seleccionado")
@@ -146,18 +154,13 @@ if st.session_state["proveedor"]:
         except Exception as e:
             st.error(f"Error al realizar la consulta: {e}")
 
-# Botón para cerrar sesión
-if st.sidebar.button("Cerrar Sesión"):
-    st.session_state.clear()
-    st.toast("Sesión cerrada correctamente.")
-    st.experimental_rerun()
-
-
-
-
-
-
-
-
-
+# Verificar si el usuario tiene sesión activa
+if "proveedor" not in st.session_state or st.session_state["proveedor"] is None:
+    st.warning("No hay una sesión activa. Por favor, inicie sesión.")
+else:
+    # Botón para cerrar sesión
+    if st.sidebar.button("Cerrar Sesión"):
+        st.session_state.clear()
+        st.toast("Sesión cerrada correctamente.")
+        st.stop()  # Detiene la ejecución del script en lugar de reiniciarlo
 
