@@ -14,7 +14,7 @@ if "proveedor" not in st.session_state:
 # Conexión a la base de datos
 usuario = 'postgres'
 contraseña = 'Luna2030.'
-host = 'localhost'
+host = '181.61.206.48'
 puerto = '5433'
 db = 'Proyecto_Pagos'
 
